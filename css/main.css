@@ -156,7 +156,6 @@ body {
   font-family: var(--font-primary);
   color: var(--color-text);
   background: var(--bg-gradient);
-  background-attachment: fixed;
   min-height: 100vh;
   line-height: 1.5;
   transition: background 1.5s ease, color 0.3s ease;

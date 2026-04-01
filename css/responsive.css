@@ -1,15 +1,204 @@
+/* ===== Mobile Default (0-599px) ===== */
+
+/* Stack header on mobile */
+.site-header {
+  height: auto;
+  padding: var(--space-sm) 0;
+}
+
+.header-inner {
+  flex-wrap: wrap;
+  gap: var(--space-sm);
+  padding: var(--space-xs) var(--space-md);
+}
+
+.site-logo {
+  order: 1;
+}
+
+.header-controls {
+  order: 2;
+  margin-left: auto;
+}
+
+.search-form {
+  order: 3;
+  flex: 1 1 100%;
+  max-width: 100%;
+}
+
+/* Bigger touch targets on mobile */
+.geo-btn,
+.search-btn {
+  width: 38px;
+  height: 38px;
+}
+
+.search-input-wrapper {
+  height: 44px;
+}
+
+.search-input {
+  font-size: 16px; /* Prevents iOS zoom on focus */
+}
+
+/* Hero adjustments for mobile */
+.hero {
+  padding: var(--space-md) 0 var(--space-xl);
+}
+
+.hero-icon {
+  width: 100px;
+  height: 100px;
+}
+
+.hero-phrase {
+  font-size: clamp(1rem, 4.5vw, 1.3rem);
+  padding: 0 var(--space-sm);
+}
+
+.hero-stats {
+  gap: var(--space-lg);
+  flex-wrap: wrap;
+}
+
+.stat-label {
+  font-size: 0.65rem;
+}
+
+.stat-value {
+  font-size: var(--font-size-sm);
+}
+
+/* Main content offset for stacked header */
+.main-content {
+  padding-top: calc(100px + var(--space-md));
+}
+
+/* Daily forecast tighter on mobile */
+.daily-row {
+  grid-template-columns: 65px 28px 1fr 36px;
+  gap: var(--space-xs);
+  padding: var(--space-sm) var(--space-sm);
+}
+
+.daily-day {
+  font-size: var(--font-size-xs);
+}
+
+.daily-day .daily-date {
+  display: none;
+}
+
+.daily-icon {
+  width: 28px;
+  height: 28px;
+}
+
+.daily-low,
+.daily-high {
+  font-size: var(--font-size-xs);
+  min-width: 24px;
+}
+
+.daily-precip {
+  font-size: 0.6rem;
+}
+
+/* Hourly cards smaller on mobile */
+.hourly-card {
+  width: 64px;
+  padding: var(--space-xs);
+}
+
+.hourly-icon {
+  width: 28px;
+  height: 28px;
+}
+
+.hourly-temp {
+  font-size: var(--font-size-xs);
+}
+
+/* Details grid 2 columns on mobile */
+.details-grid {
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--space-sm);
+}
+
+.detail-card {
+  padding: var(--space-md);
+}
+
+.detail-value {
+  font-size: var(--font-size-lg);
+}
+
+.detail-extra {
+  font-size: var(--font-size-xs);
+}
+
+/* Section titles */
+.section-title {
+  font-size: var(--font-size-base);
+}
+
+/* Modal mobile friendly */
+.modal {
+  margin: var(--space-md);
+  padding: var(--space-lg);
+}
+
+.modal-title {
+  font-size: var(--font-size-lg);
+}
+
+/* Empty/error state */
+.empty-state,
+.error-state {
+  padding: var(--space-xl) var(--space-sm);
+}
+
+.empty-icon svg,
+.error-icon svg {
+  width: 48px;
+  height: 48px;
+}
+
 /* ===== Tablet (600px+) ===== */
 @media (min-width: 600px) {
+  .site-header {
+    height: var(--header-height);
+    padding: 0;
+  }
+
   .header-inner {
+    flex-wrap: nowrap;
     gap: var(--space-lg);
+    padding: 0 var(--space-md);
+  }
+
+  .site-logo {
+    order: unset;
+  }
+
+  .header-controls {
+    order: unset;
+    margin-left: 0;
   }
 
   .search-form {
+    order: unset;
+    flex: 1;
     max-width: 400px;
   }
 
+  .main-content {
+    padding-top: calc(var(--header-height) + var(--space-lg));
+  }
+
   .hero {
-    padding: var(--space-2xl) 0 var(--space-2xl);
+    padding: var(--space-xl) 0 var(--space-2xl);
   }
 
   .hero-icon {
@@ -17,26 +206,68 @@
     height: 140px;
   }
 
+  .hero-phrase {
+    font-size: var(--font-size-phrase);
+    padding: 0;
+  }
+
   .hero-stats {
     gap: var(--space-2xl);
   }
 
+  .stat-label {
+    font-size: var(--font-size-xs);
+  }
+
+  .stat-value {
+    font-size: var(--font-size-base);
+  }
+
   .hourly-card {
     width: 80px;
+    padding: var(--space-sm) var(--space-xs);
+  }
+
+  .hourly-icon {
+    width: 32px;
+    height: 32px;
   }
 
   .details-grid {
     grid-template-columns: repeat(3, 1fr);
+    gap: var(--space-md);
+  }
+
+  .detail-value {
+    font-size: var(--font-size-xl);
   }
 
   .daily-row {
     grid-template-columns: 100px 40px 1fr 50px;
+    gap: var(--space-sm);
     padding: var(--space-md) var(--space-lg);
+  }
+
+  .daily-day {
+    font-size: var(--font-size-sm);
+  }
+
+  .daily-day .daily-date {
+    display: block;
+  }
+
+  .daily-icon {
+    width: 32px;
+    height: 32px;
   }
 
   .modal-actions {
     flex-direction: row;
     justify-content: center;
+  }
+
+  .section-title {
+    font-size: var(--font-size-lg);
   }
 }
 
