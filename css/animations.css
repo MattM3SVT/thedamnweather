@@ -1,0 +1,169 @@
+/* ===== Loading Skeletons ===== */
+.loading-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: var(--space-2xl) 0;
+  gap: var(--space-md);
+}
+
+.skeleton {
+  background: linear-gradient(
+    90deg,
+    var(--color-border) 25%,
+    var(--color-surface-hover) 50%,
+    var(--color-border) 75%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.5s ease-in-out infinite;
+  border-radius: var(--border-radius-sm);
+}
+
+.skeleton-hero {
+  width: 200px;
+  height: 120px;
+  border-radius: var(--border-radius);
+}
+
+.skeleton-phrase {
+  width: 320px;
+  max-width: 80%;
+  height: 24px;
+}
+
+.skeleton-stats {
+  width: 260px;
+  max-width: 60%;
+  height: 16px;
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+/* ===== Fade In ===== */
+.weather-content {
+  animation: fadeIn 0.4s ease-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ===== Hero Phrase Transition ===== */
+.hero-phrase {
+  transition: opacity 0.3s ease;
+}
+
+.hero-phrase.fading {
+  opacity: 0;
+}
+
+/* ===== Card Hover ===== */
+.detail-card {
+  transition: background 0.3s, border-color 0.3s, transform 0.2s;
+}
+
+.detail-card:hover {
+  transform: translateY(-2px);
+  border-color: var(--color-text-muted);
+}
+
+/* ===== Modal Animation ===== */
+.modal-overlay {
+  animation: overlayIn 0.2s ease-out;
+}
+
+.modal {
+  animation: modalIn 0.3s ease-out;
+}
+
+@keyframes overlayIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes modalIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95) translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+/* ===== Search Loading ===== */
+.search-input-wrapper.is-loading .search-btn {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* ===== Hourly Card Stagger ===== */
+.hourly-card {
+  animation: cardIn 0.3s ease-out backwards;
+}
+
+.hourly-card:nth-child(1) { animation-delay: 0ms; }
+.hourly-card:nth-child(2) { animation-delay: 30ms; }
+.hourly-card:nth-child(3) { animation-delay: 60ms; }
+.hourly-card:nth-child(4) { animation-delay: 90ms; }
+.hourly-card:nth-child(5) { animation-delay: 120ms; }
+.hourly-card:nth-child(6) { animation-delay: 150ms; }
+.hourly-card:nth-child(7) { animation-delay: 180ms; }
+.hourly-card:nth-child(8) { animation-delay: 210ms; }
+
+@keyframes cardIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ===== Daily Row Stagger ===== */
+.daily-row {
+  animation: rowIn 0.3s ease-out backwards;
+}
+
+.daily-row:nth-child(1) { animation-delay: 0ms; }
+.daily-row:nth-child(2) { animation-delay: 40ms; }
+.daily-row:nth-child(3) { animation-delay: 80ms; }
+.daily-row:nth-child(4) { animation-delay: 120ms; }
+.daily-row:nth-child(5) { animation-delay: 160ms; }
+.daily-row:nth-child(6) { animation-delay: 200ms; }
+.daily-row:nth-child(7) { animation-delay: 240ms; }
+.daily-row:nth-child(8) { animation-delay: 280ms; }
+.daily-row:nth-child(9) { animation-delay: 320ms; }
+.daily-row:nth-child(10) { animation-delay: 360ms; }
+
+@keyframes rowIn {
+  from {
+    opacity: 0;
+    transform: translateX(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}

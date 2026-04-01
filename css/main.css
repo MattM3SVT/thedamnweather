@@ -1,0 +1,226 @@
+/* ===== CSS Variables & Base ===== */
+:root {
+  /* Colors - Light */
+  --color-bg: #f8f9fa;
+  --color-surface: #ffffff;
+  --color-surface-hover: #f1f3f5;
+  --color-text: #1a1a2e;
+  --color-text-secondary: #6c757d;
+  --color-text-muted: #adb5bd;
+  --color-border: #e9ecef;
+  --color-accent: #e63946;
+  --color-accent-hover: #d62839;
+  --color-shadow: rgba(0, 0, 0, 0.06);
+  --color-shadow-lg: rgba(0, 0, 0, 0.1);
+  --color-overlay: rgba(0, 0, 0, 0.5);
+
+  /* Dynamic background (set via JS data attributes) */
+  --bg-gradient: linear-gradient(160deg, #a8dadc 0%, #f1faee 100%);
+
+  /* Typography */
+  --font-primary: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-size-xs: 0.75rem;
+  --font-size-sm: 0.85rem;
+  --font-size-base: 1rem;
+  --font-size-lg: 1.15rem;
+  --font-size-xl: 1.5rem;
+  --font-size-hero-temp: clamp(4rem, 12vw, 8rem);
+  --font-size-phrase: clamp(1.1rem, 3vw, 1.5rem);
+
+  /* Spacing */
+  --space-xs: 0.25rem;
+  --space-sm: 0.5rem;
+  --space-md: 1rem;
+  --space-lg: 1.5rem;
+  --space-xl: 2rem;
+  --space-2xl: 3rem;
+
+  /* Layout */
+  --max-width: 900px;
+  --header-height: 64px;
+  --border-radius: 12px;
+  --border-radius-sm: 8px;
+  --border-radius-pill: 100px;
+}
+
+/* Dark Theme */
+[data-theme="dark"] {
+  --color-bg: #0f1117;
+  --color-surface: #1a1d27;
+  --color-surface-hover: #252836;
+  --color-text: #e8e8ed;
+  --color-text-secondary: #9ca3af;
+  --color-text-muted: #6b7280;
+  --color-border: #2a2d3a;
+  --color-shadow: rgba(0, 0, 0, 0.2);
+  --color-shadow-lg: rgba(0, 0, 0, 0.3);
+  --color-overlay: rgba(0, 0, 0, 0.7);
+}
+
+/* ===== Dynamic Background Gradients ===== */
+/* Clear Day */
+body[data-conditions="clear"][data-daytime="day"] {
+  --bg-gradient: linear-gradient(160deg, #87ceeb 0%, #e0f0ff 50%, #f8f9fa 100%);
+}
+[data-theme="dark"] body[data-conditions="clear"][data-daytime="day"],
+body[data-conditions="clear"][data-daytime="night"] {
+  --bg-gradient: linear-gradient(160deg, #0c1445 0%, #1a1d3a 50%, #0f1117 100%);
+}
+[data-theme="dark"] body[data-conditions="clear"][data-daytime="night"] {
+  --bg-gradient: linear-gradient(160deg, #0c1445 0%, #1a1d3a 50%, #0f1117 100%);
+}
+
+/* Cloudy */
+body[data-conditions="cloudy"],
+body[data-conditions="partly-cloudy"] {
+  --bg-gradient: linear-gradient(160deg, #c8d6e5 0%, #dfe6e9 50%, #f8f9fa 100%);
+}
+[data-theme="dark"] body[data-conditions="cloudy"],
+[data-theme="dark"] body[data-conditions="partly-cloudy"] {
+  --bg-gradient: linear-gradient(160deg, #1a1d27 0%, #252836 50%, #0f1117 100%);
+}
+
+/* Rain */
+body[data-conditions="rain"],
+body[data-conditions="heavy-rain"],
+body[data-conditions="drizzle"] {
+  --bg-gradient: linear-gradient(160deg, #636e72 0%, #b2bec3 50%, #dfe6e9 100%);
+}
+[data-theme="dark"] body[data-conditions="rain"],
+[data-theme="dark"] body[data-conditions="heavy-rain"],
+[data-theme="dark"] body[data-conditions="drizzle"] {
+  --bg-gradient: linear-gradient(160deg, #0a0e14 0%, #1a1d27 50%, #0f1117 100%);
+}
+
+/* Snow */
+body[data-conditions="snow"],
+body[data-conditions="heavy-snow"] {
+  --bg-gradient: linear-gradient(160deg, #dce6f1 0%, #ecf0f5 50%, #f8f9fa 100%);
+}
+[data-theme="dark"] body[data-conditions="snow"],
+[data-theme="dark"] body[data-conditions="heavy-snow"] {
+  --bg-gradient: linear-gradient(160deg, #1a2030 0%, #252d3f 50%, #0f1117 100%);
+}
+
+/* Thunderstorm */
+body[data-conditions="thunderstorm"] {
+  --bg-gradient: linear-gradient(160deg, #2d3436 0%, #636e72 50%, #b2bec3 100%);
+}
+[data-theme="dark"] body[data-conditions="thunderstorm"] {
+  --bg-gradient: linear-gradient(160deg, #05080d 0%, #111520 50%, #0f1117 100%);
+}
+
+/* Fog */
+body[data-conditions="fog"] {
+  --bg-gradient: linear-gradient(160deg, #d5dbe0 0%, #e8ecef 50%, #f8f9fa 100%);
+}
+[data-theme="dark"] body[data-conditions="fog"] {
+  --bg-gradient: linear-gradient(160deg, #15181f 0%, #1e2230 50%, #0f1117 100%);
+}
+
+/* Freezing Rain */
+body[data-conditions="freezing-rain"] {
+  --bg-gradient: linear-gradient(160deg, #a4b6c4 0%, #c5d3de 50%, #e8edf2 100%);
+}
+[data-theme="dark"] body[data-conditions="freezing-rain"] {
+  --bg-gradient: linear-gradient(160deg, #10141d 0%, #1a2030 50%, #0f1117 100%);
+}
+
+/* Hot tint */
+body[data-temp-range="hot"],
+body[data-temp-range="extreme-hot"] {
+  --color-accent: #e63946;
+}
+
+/* Cold tint */
+body[data-temp-range="extreme-cold"],
+body[data-temp-range="cold"] {
+  --color-accent: #457b9d;
+}
+
+/* ===== Reset & Base ===== */
+*,
+*::before,
+*::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  font-size: 16px;
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  font-family: var(--font-primary);
+  color: var(--color-text);
+  background: var(--bg-gradient);
+  background-attachment: fixed;
+  min-height: 100vh;
+  line-height: 1.5;
+  transition: background 1.5s ease, color 0.3s ease;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+a {
+  color: var(--color-accent);
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+a:hover {
+  color: var(--color-accent-hover);
+}
+
+img {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+
+button {
+  cursor: pointer;
+  font-family: inherit;
+  border: none;
+  background: none;
+}
+
+input {
+  font-family: inherit;
+  border: none;
+  outline: none;
+}
+
+/* ===== Layout ===== */
+.main-content {
+  max-width: var(--max-width);
+  margin: 0 auto;
+  padding: calc(var(--header-height) + var(--space-lg)) var(--space-md) var(--space-2xl);
+}
+
+/* ===== Section Titles ===== */
+.section-title {
+  font-size: var(--font-size-lg);
+  font-weight: 600;
+  color: var(--color-text);
+  margin-bottom: var(--space-md);
+  letter-spacing: -0.01em;
+}
+
+/* ===== Utility ===== */
+[hidden] {
+  display: none !important;
+}
+
+/* Reduced motion preference */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

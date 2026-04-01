@@ -1,0 +1,152 @@
+import { getConditionTag, getConditionLabel } from './utils.js';
+import { cacheWeather, getCachedWeather, cacheGeocode, getCachedGeocode } from './cache.js';
+
+const WEATHER_URL = 'https://api.open-meteo.com/v1/forecast';
+const GEOCODE_URL = 'https://geocoding-api.open-meteo.com/v1/search';
+
+/**
+ * Geocode a query (zip code or city name) to coordinates
+ * Returns array of { name, state, country, lat, lon, timezone }
+ */
+export async function geocodeLocation(query) {
+  const trimmed = query.trim();
+  if (!trimmed) return [];
+
+  // Check cache
+  const cached = getCachedGeocode(trimmed);
+  if (cached) return cached;
+
+  const params = new URLSearchParams({
+    name: trimmed,
+    count: '5',
+    language: 'en',
+    format: 'json',
+  });
+
+  const response = await fetch(`${GEOCODE_URL}?${params}`);
+  if (!response.ok) {
+    throw new Error('Failed to geocode location');
+  }
+
+  const data = await response.json();
+
+  if (!data.results || data.results.length === 0) {
+    return [];
+  }
+
+  const results = data.results.map(r => ({
+    name: r.name,
+    state: r.admin1 || '',
+    country: r.country || '',
+    lat: r.latitude,
+    lon: r.longitude,
+    timezone: r.timezone || 'America/New_York',
+  }));
+
+  cacheGeocode(trimmed, results);
+  return results;
+}
+
+/**
+ * Fetch weather data for coordinates
+ * Returns normalized weather object with current, hourly, daily
+ */
+export async function fetchWeather(lat, lon) {
+  // Check cache
+  const cached = getCachedWeather(lat, lon);
+  if (cached) return cached;
+
+  const params = new URLSearchParams({
+    latitude: lat.toString(),
+    longitude: lon.toString(),
+    current: [
+      'temperature_2m', 'relative_humidity_2m', 'apparent_temperature',
+      'is_day', 'precipitation', 'weather_code', 'cloud_cover',
+      'pressure_msl', 'wind_speed_10m', 'wind_direction_10m', 'wind_gusts_10m'
+    ].join(','),
+    hourly: [
+      'temperature_2m', 'apparent_temperature', 'precipitation_probability',
+      'weather_code', 'wind_speed_10m', 'is_day'
+    ].join(','),
+    daily: [
+      'weather_code', 'temperature_2m_max', 'temperature_2m_min',
+      'sunrise', 'sunset', 'precipitation_sum',
+      'precipitation_probability_max', 'wind_speed_10m_max', 'uv_index_max'
+    ].join(','),
+    temperature_unit: 'fahrenheit',
+    wind_speed_unit: 'mph',
+    precipitation_unit: 'inch',
+    timezone: 'auto',
+    forecast_days: '10',
+  });
+
+  const response = await fetch(`${WEATHER_URL}?${params}`);
+  if (!response.ok) {
+    throw new Error('Failed to fetch weather data');
+  }
+
+  const raw = await response.json();
+  const normalized = normalizeWeatherData(raw);
+
+  cacheWeather(lat, lon, normalized);
+  return normalized;
+}
+
+/**
+ * Normalize raw Open-Meteo response into app-friendly structure
+ */
+function normalizeWeatherData(raw) {
+  const current = {
+    temp: raw.current.temperature_2m,
+    feelsLike: raw.current.apparent_temperature,
+    humidity: raw.current.relative_humidity_2m,
+    isDay: raw.current.is_day === 1,
+    precipitation: raw.current.precipitation,
+    weatherCode: raw.current.weather_code,
+    cloudCover: raw.current.cloud_cover,
+    pressure: raw.current.pressure_msl,
+    windSpeed: raw.current.wind_speed_10m,
+    windDirection: raw.current.wind_direction_10m,
+    windGusts: raw.current.wind_gusts_10m,
+    conditionTag: getConditionTag(raw.current.weather_code, raw.current.wind_speed_10m),
+    conditionLabel: getConditionLabel(raw.current.weather_code),
+  };
+
+  // Filter hourly to remaining hours of today + next 24h
+  const now = new Date();
+  const hourly = raw.hourly.time.map((time, i) => ({
+    time,
+    temp: raw.hourly.temperature_2m[i],
+    feelsLike: raw.hourly.apparent_temperature[i],
+    precipProb: raw.hourly.precipitation_probability[i],
+    weatherCode: raw.hourly.weather_code[i],
+    windSpeed: raw.hourly.wind_speed_10m[i],
+    isDay: raw.hourly.is_day[i] === 1,
+    conditionTag: getConditionTag(raw.hourly.weather_code[i], raw.hourly.wind_speed_10m[i]),
+  })).filter(h => {
+    const hDate = new Date(h.time);
+    return hDate >= now;
+  }).slice(0, 24);
+
+  const daily = raw.daily.time.map((time, i) => ({
+    time,
+    weatherCode: raw.daily.weather_code[i],
+    high: raw.daily.temperature_2m_max[i],
+    low: raw.daily.temperature_2m_min[i],
+    sunrise: raw.daily.sunrise[i],
+    sunset: raw.daily.sunset[i],
+    precipSum: raw.daily.precipitation_sum[i],
+    precipProb: raw.daily.precipitation_probability_max[i],
+    windMax: raw.daily.wind_speed_10m_max[i],
+    uvMax: raw.daily.uv_index_max[i],
+    conditionTag: getConditionTag(raw.daily.weather_code[i]),
+    conditionLabel: getConditionLabel(raw.daily.weather_code[i]),
+  }));
+
+  return {
+    current,
+    hourly,
+    daily,
+    timezone: raw.timezone,
+  };
+}

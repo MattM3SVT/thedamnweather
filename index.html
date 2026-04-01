@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="The Damn Weather - Get your weather forecast with a side of attitude.">
+  <title>The Damn Weather</title>
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/main.css">
+  <link rel="stylesheet" href="css/components.css">
+  <link rel="stylesheet" href="css/forecast.css">
+  <link rel="stylesheet" href="css/animations.css">
+  <link rel="stylesheet" href="css/responsive.css">
+  <!-- Prevent flash of wrong theme -->
+  <script>
+    (function() {
+      const saved = localStorage.getItem('theme');
+      if (saved === 'dark' || (!saved && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+        document.documentElement.setAttribute('data-theme', 'dark');
+      }
+    })();
+  </script>
+</head>
+<body data-conditions="clear" data-daytime="day" data-temp-range="mild">
+
+  <!-- Header -->
+  <header class="site-header">
+    <div class="header-inner">
+      <a href="/" class="site-logo" aria-label="The Damn Weather - Home">
+        <span class="logo-text">the<span class="logo-accent">damn</span>weather</span>
+      </a>
+      <form class="search-form" role="search" aria-label="Search for a location">
+        <div class="search-input-wrapper">
+          <input
+            type="text"
+            class="search-input"
+            placeholder="Enter zip code or city..."
+            aria-label="Zip code or city name"
+            autocomplete="off"
+            inputmode="text"
+          >
+          <button type="button" class="geo-btn" aria-label="Use my location" title="Use my location">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="4"/>
+              <path d="M12 2v4M12 18v4M2 12h4M18 12h4"/>
+            </svg>
+          </button>
+          <button type="submit" class="search-btn" aria-label="Search">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="11" cy="11" r="8"/>
+              <path d="M21 21l-4.35-4.35"/>
+            </svg>
+          </button>
+        </div>
+        <div class="search-results" role="listbox" aria-label="Location results" hidden></div>
+      </form>
+      <div class="header-controls">
+        <button class="theme-toggle" aria-label="Toggle dark mode" title="Toggle dark mode">
+          <svg class="icon-sun" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="5"/>
+            <path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/>
+          </svg>
+          <svg class="icon-moon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+          </svg>
+        </button>
+        <div class="explicit-toggle-wrapper">
+          <label class="toggle-label" for="explicit-toggle">
+            <span class="toggle-label-text">18+</span>
+            <div class="toggle-switch">
+              <input type="checkbox" id="explicit-toggle" class="toggle-input" aria-label="Enable explicit language">
+              <span class="toggle-slider"></span>
+            </div>
+          </label>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main class="main-content">
+
+    <!-- Loading State -->
+    <div class="loading-state" id="loading-state">
+      <div class="skeleton skeleton-hero"></div>
+      <div class="skeleton skeleton-phrase"></div>
+      <div class="skeleton skeleton-stats"></div>
+    </div>
+
+    <!-- Empty State (no location) -->
+    <div class="empty-state" id="empty-state" hidden>
+      <div class="empty-icon">
+        <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z"/>
+        </svg>
+      </div>
+      <h2 class="empty-title">Where the hell are you?</h2>
+      <p class="empty-text">Enter a zip code or let us find you so we can tell you what the damn weather is.</p>
+    </div>
+
+    <!-- Error State -->
+    <div class="error-state" id="error-state" hidden>
+      <div class="error-icon">
+        <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+          <line x1="12" y1="9" x2="12" y2="13"/>
+          <line x1="12" y1="17" x2="12.01" y2="17"/>
+        </svg>
+      </div>
+      <h2 class="error-title">Well, damn.</h2>
+      <p class="error-text" id="error-message">Something went wrong getting the weather.</p>
+      <button class="btn btn-primary" id="retry-btn">Try Again</button>
+    </div>
+
+    <!-- Weather Content -->
+    <div class="weather-content" id="weather-content" hidden>
+
+      <!-- Hero Section -->
+      <section class="hero" aria-label="Current weather conditions">
+        <div class="hero-icon-wrapper">
+          <img class="hero-icon" id="hero-icon" src="" alt="" width="120" height="120">
+        </div>
+        <div class="hero-temp" id="hero-temp" aria-label="Current temperature">--</div>
+        <div class="hero-phrase" id="hero-phrase" aria-live="polite">Loading the attitude...</div>
+        <div class="hero-location" id="hero-location">
+          <span class="location-name" id="location-name">--</span>
+          <span class="location-time" id="location-time">--</span>
+        </div>
+        <div class="hero-stats" id="hero-stats">
+          <div class="stat">
+            <span class="stat-label">Feels Like</span>
+            <span class="stat-value" id="stat-feels-like">--</span>
+          </div>
+          <div class="stat">
+            <span class="stat-label">Condition</span>
+            <span class="stat-value" id="stat-condition">--</span>
+          </div>
+          <div class="stat">
+            <span class="stat-label">Wind</span>
+            <span class="stat-value" id="stat-wind">--</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- Hourly Forecast -->
+      <section class="forecast-section" aria-label="Hourly forecast">
+        <h2 class="section-title">Today, Hour by Hour</h2>
+        <div class="hourly-scroll-wrapper">
+          <div class="hourly-scroll" id="hourly-scroll" role="list" aria-label="Hourly forecast">
+            <!-- Hourly cards rendered by JS -->
+          </div>
+        </div>
+      </section>
+
+      <!-- Daily Forecast -->
+      <section class="forecast-section" aria-label="10-day forecast">
+        <h2 class="section-title">The Next 10 Days</h2>
+        <div class="daily-list" id="daily-list" role="list" aria-label="Daily forecast">
+          <!-- Daily rows rendered by JS -->
+        </div>
+      </section>
+
+      <!-- Weather Details -->
+      <section class="details-section" aria-label="Weather details">
+        <h2 class="section-title">The Details</h2>
+        <div class="details-grid" id="details-grid">
+          <div class="detail-card" aria-label="Humidity">
+            <div class="detail-label">Humidity</div>
+            <div class="detail-value" id="detail-humidity">--%</div>
+            <div class="detail-extra" id="detail-humidity-desc"></div>
+          </div>
+          <div class="detail-card" aria-label="Wind">
+            <div class="detail-label">Wind</div>
+            <div class="detail-value" id="detail-wind">-- mph</div>
+            <div class="detail-extra" id="detail-wind-dir"></div>
+          </div>
+          <div class="detail-card" aria-label="UV Index">
+            <div class="detail-label">UV Index</div>
+            <div class="detail-value" id="detail-uv">--</div>
+            <div class="detail-extra" id="detail-uv-level"></div>
+          </div>
+          <div class="detail-card" aria-label="Pressure">
+            <div class="detail-label">Pressure</div>
+            <div class="detail-value" id="detail-pressure">-- hPa</div>
+            <div class="detail-extra" id="detail-pressure-trend"></div>
+          </div>
+          <div class="detail-card" aria-label="Sunrise and Sunset">
+            <div class="detail-label">Sun</div>
+            <div class="detail-value" id="detail-sunrise">--</div>
+            <div class="detail-extra" id="detail-sunset"></div>
+          </div>
+          <div class="detail-card" aria-label="Precipitation">
+            <div class="detail-label">Precipitation</div>
+            <div class="detail-value" id="detail-precip">-- in</div>
+            <div class="detail-extra" id="detail-precip-chance"></div>
+          </div>
+        </div>
+      </section>
+
+    </div>
+  </main>
+
+  <!-- Age Disclaimer Modal -->
+  <div class="modal-overlay" id="age-modal" hidden>
+    <div class="modal" role="dialog" aria-labelledby="modal-title" aria-modal="true">
+      <h3 class="modal-title" id="modal-title">Heads up!</h3>
+      <p class="modal-text">You're about to enable some <strong>colorful language</strong>. The phrases will contain explicit profanity. You must be 18 or older to continue.</p>
+      <div class="modal-actions">
+        <button class="btn btn-primary" id="age-confirm">I'm 18+, bring it on</button>
+        <button class="btn btn-secondary" id="age-cancel">Keep it clean</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer class="site-footer">
+    <p>Weather data by <a href="https://open-meteo.com/" target="_blank" rel="noopener">Open-Meteo</a> &middot; Icons by <a href="https://bas.dev/work/meteocons" target="_blank" rel="noopener">Bas Milius</a></p>
+  </footer>
+
+  <script type="module" src="js/app.js"></script>
+</body>
+</html>
