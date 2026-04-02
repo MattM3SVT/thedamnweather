@@ -112,8 +112,14 @@ function normalizeWeatherData(raw) {
     conditionLabel: getConditionLabel(raw.current.weather_code),
   };
 
-  // Filter hourly to remaining hours of today + next 24h
-  const now = new Date();
+  // Filter hourly to remaining hours in the LOCATION's timezone + next 24h
+  // Open-Meteo returns times without timezone offset (e.g., "2024-04-02T20:00")
+  // which represent the location's local time. We need to compare against
+  // the current time in the location's timezone, not the user's browser timezone.
+  const tz = raw.timezone || 'UTC';
+  const nowInLocationTZ = new Date().toLocaleString('en-US', { timeZone: tz });
+  const nowLocal = new Date(nowInLocationTZ);
+
   const hourly = raw.hourly.time.map((time, i) => ({
     time,
     temp: raw.hourly.temperature_2m[i],
@@ -125,7 +131,7 @@ function normalizeWeatherData(raw) {
     conditionTag: getConditionTag(raw.hourly.weather_code[i], raw.hourly.wind_speed_10m[i]),
   })).filter(h => {
     const hDate = new Date(h.time);
-    return hDate >= now;
+    return hDate >= nowLocal;
   }).slice(0, 24);
 
   const daily = raw.daily.time.map((time, i) => ({

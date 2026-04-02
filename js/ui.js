@@ -26,7 +26,7 @@ export function showState(state, errorMsg = '') {
  */
 export function renderAll(weather, location, phrase) {
   renderHero(weather.current, location, phrase, weather.timezone);
-  renderHourly(weather.hourly);
+  renderHourly(weather.hourly, weather.timezone);
   renderDaily(weather.daily);
   renderDetails(weather.current, weather.daily[0]);
   showState('weather');
@@ -74,7 +74,7 @@ export function updatePhrase(phrase) {
 /**
  * Render hourly forecast cards
  */
-function renderHourly(hourly) {
+function renderHourly(hourly, timezone) {
   const container = $('hourly-scroll');
   container.innerHTML = '';
 
@@ -83,7 +83,7 @@ function renderHourly(hourly) {
     card.className = 'hourly-card' + (i === 0 ? ' is-now' : '');
     card.setAttribute('role', 'listitem');
 
-    const timeLabel = formatHour(h.time);
+    const timeLabel = formatHour(h.time, timezone);
     const iconPath = getIconPath(h.conditionTag, h.isDay);
     const temp = formatTemp(h.temp);
     const precip = h.precipProb;

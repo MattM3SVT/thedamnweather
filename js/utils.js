@@ -174,13 +174,22 @@ export function formatTime(isoString) {
 
 /**
  * Format hour label (e.g., "3 PM")
+ * Uses location timezone so "Now" is correct regardless of user's local timezone
  */
-export function formatHour(isoString) {
+export function formatHour(isoString, timezone) {
   const date = new Date(isoString);
-  const now = new Date();
-  // Check if this hour is the current hour
-  if (date.getHours() === now.getHours() && date.toDateString() === now.toDateString()) {
-    return 'Now';
+  if (timezone) {
+    // Compare using the location's timezone, not the user's browser timezone
+    const nowStr = new Date().toLocaleString('en-US', { timeZone: timezone });
+    const nowInTZ = new Date(nowStr);
+    if (date.getHours() === nowInTZ.getHours() && date.toDateString() === nowInTZ.toDateString()) {
+      return 'Now';
+    }
+  } else {
+    const now = new Date();
+    if (date.getHours() === now.getHours() && date.toDateString() === now.toDateString()) {
+      return 'Now';
+    }
   }
   return date.toLocaleTimeString('en-US', { hour: 'numeric' });
 }
