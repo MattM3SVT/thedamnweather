@@ -66,7 +66,7 @@ async function loadWeather(location) {
 
     // Select phrase
     const mode = getPhraseMode();
-    const phrase = selectPhrase(weather.current.conditionTag, weather.current.temp, mode);
+    const phrase = selectPhrase(weather.current.conditionTag, weather.current.temp, mode, weather.current.isDay);
 
     // Render
     renderAll(weather, location, phrase);
@@ -275,7 +275,8 @@ function refreshPhrase() {
   const phrase = selectPhrase(
     currentWeather.current.conditionTag,
     currentWeather.current.temp,
-    mode
+    mode,
+    currentWeather.current.isDay
   );
   updatePhrase(phrase);
 }
