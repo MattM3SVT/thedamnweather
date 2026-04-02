@@ -44,7 +44,7 @@
 }
 
 .hourly-card.is-now {
-  border-color: var(--color-accent);
+  border-color: var(--color-border);
   background: var(--color-surface-hover);
 }
 
@@ -55,7 +55,7 @@
 }
 
 .hourly-card.is-now .hourly-time {
-  color: var(--color-accent);
+  color: var(--color-text);
   font-weight: 700;
 }
 
