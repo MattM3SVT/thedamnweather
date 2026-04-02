@@ -28,12 +28,36 @@ export function getBrowserLocation() {
 }
 
 /**
- * Reverse geocode coordinates to a location name using Open-Meteo
- * Since Open-Meteo doesn't have reverse geocoding, we use a nearby city search
+ * Reverse geocode coordinates to a city name using BigDataCloud free API
+ * No API key required, no signup needed
  */
 export async function reverseGeocode(lat, lon) {
-  // Use Open-Meteo geocoding with coordinates formatted as a search
-  // This is a workaround - search for nearby location
+  try {
+    const response = await fetch(
+      `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${lat}&longitude=${lon}&localityLanguage=en`
+    );
+    if (response.ok) {
+      const data = await response.json();
+      const city = data.city || data.locality || data.principalSubdivision || '';
+      const state = data.principalSubdivision || '';
+      // Avoid showing the same thing twice (e.g. city = "Washington", state = "Washington")
+      const displayState = (state && state !== city) ? state : '';
+      if (city) {
+        return {
+          name: city,
+          state: displayState,
+          country: data.countryName || '',
+          lat,
+          lon,
+          timezone: Intl.DateTimeFormat().resolvedOptions().timeZone || 'America/New_York',
+        };
+      }
+    }
+  } catch {
+    // Fall through to fallback
+  }
+
+  // Fallback: try Open-Meteo geocoding with a nearby search
   try {
     const response = await fetch(
       `https://geocoding-api.open-meteo.com/v1/search?name=${lat.toFixed(1)},${lon.toFixed(1)}&count=1&language=en`
@@ -45,24 +69,24 @@ export async function reverseGeocode(lat, lon) {
           name: data.results[0].name,
           state: data.results[0].admin1 || '',
           country: data.results[0].country || '',
-          lat: data.results[0].latitude,
-          lon: data.results[0].longitude,
+          lat,
+          lon,
           timezone: data.results[0].timezone || 'America/New_York',
         };
       }
     }
   } catch {
-    // Fall through to default
+    // Fall through to coordinates
   }
 
-  // Fallback: return coordinates as the name
+  // Last resort: show coordinates
   return {
     name: `${lat.toFixed(2)}°, ${lon.toFixed(2)}°`,
     state: '',
     country: '',
     lat,
     lon,
-    timezone: 'America/New_York',
+    timezone: Intl.DateTimeFormat().resolvedOptions().timeZone || 'America/New_York',
   };
 }
 
@@ -74,13 +98,10 @@ export async function searchLocation(query) {
   const trimmed = query.trim();
   if (!trimmed) return [];
 
-  // If it's a zip code, search directly
   if (isZipCode(trimmed)) {
-    const results = await geocodeLocation(trimmed);
-    return results;
+    return geocodeLocation(trimmed);
   }
 
-  // City name search
   return geocodeLocation(trimmed);
 }
 
