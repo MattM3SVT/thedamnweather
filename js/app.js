@@ -76,9 +76,13 @@ async function loadWeather(location) {
     // Render
     renderAll(weather, location, phrase);
 
-    // Start time updates
+    // Start time updates, aligned to next minute boundary
     if (timeInterval) clearInterval(timeInterval);
-    timeInterval = setInterval(() => updateTime(weather.timezone), 60000);
+    const msUntilNextMinute = (60 - new Date().getSeconds()) * 1000;
+    setTimeout(() => {
+      updateTime(weather.timezone);
+      timeInterval = setInterval(() => updateTime(weather.timezone), 60000);
+    }, msUntilNextMinute);
 
   } catch (err) {
     console.error('Weather load failed:', err);

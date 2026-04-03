@@ -103,9 +103,9 @@ export async function fetchWeather(lat, lon) {
  */
 function normalizeWeatherData(raw) {
   const current = {
-    temp: raw.current.temperature_2m,
-    feelsLike: raw.current.apparent_temperature,
-    humidity: raw.current.relative_humidity_2m,
+    temp: raw.current.temperature_2m ?? 0,
+    feelsLike: raw.current.apparent_temperature ?? raw.current.temperature_2m ?? 0,
+    humidity: raw.current.relative_humidity_2m ?? 0,
     isDay: raw.current.is_day === 1,
     precipitation: raw.current.precipitation ?? 0,
     weatherCode: raw.current.weather_code,

@@ -34,9 +34,13 @@ export async function reverseGeocode(lat, lon) {
   // First, get the correct timezone from Open-Meteo (quick lightweight call)
   let timezone = Intl.DateTimeFormat().resolvedOptions().timeZone || 'America/New_York';
   try {
+    const tzCtrl = new AbortController();
+    const tzTimeout = setTimeout(() => tzCtrl.abort(), 10000);
     const tzResponse = await fetch(
-      `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m&timezone=auto&forecast_days=1`
+      `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&timezone=auto&forecast_days=1`,
+      { signal: tzCtrl.signal }
     );
+    clearTimeout(tzTimeout);
     if (tzResponse.ok) {
       const tzData = await tzResponse.json();
       if (tzData.timezone) timezone = tzData.timezone;
@@ -47,9 +51,13 @@ export async function reverseGeocode(lat, lon) {
 
   // Get the city name from BigDataCloud
   try {
+    const geoCtrl = new AbortController();
+    const geoTimeout = setTimeout(() => geoCtrl.abort(), 10000);
     const response = await fetch(
-      `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${lat}&longitude=${lon}&localityLanguage=en`
+      `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${lat}&longitude=${lon}&localityLanguage=en`,
+      { signal: geoCtrl.signal }
     );
+    clearTimeout(geoTimeout);
     if (response.ok) {
       const data = await response.json();
       const city = data.city || data.locality || data.principalSubdivision || '';
