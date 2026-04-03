@@ -1,4 +1,5 @@
-/* ===== Mobile Default (0-599px) ===== */
+/* ===== Mobile (0-599px) ===== */
+@media (max-width: 599px) {
 
 /* Stack header on mobile */
 .site-header {
@@ -164,6 +165,8 @@
   width: 48px;
   height: 48px;
 }
+
+} /* end mobile max-width: 599px */
 
 /* ===== Tablet (600px+) ===== */
 @media (min-width: 600px) {

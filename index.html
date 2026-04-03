@@ -84,7 +84,7 @@
   <main class="main-content">
 
     <!-- Loading State -->
-    <div class="loading-state" id="loading-state">
+    <div class="loading-state" id="loading-state" role="status" aria-label="Loading weather data">
       <div class="skeleton skeleton-hero"></div>
       <div class="skeleton skeleton-phrase"></div>
       <div class="skeleton skeleton-stats"></div>
@@ -121,7 +121,7 @@
       <!-- Hero Section -->
       <section class="hero" aria-label="Current weather conditions">
         <div class="hero-icon-wrapper">
-          <img class="hero-icon" id="hero-icon" src="" alt="" width="120" height="120">
+          <img class="hero-icon" id="hero-icon" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg'/%3E" alt="Weather icon" width="120" height="120">
         </div>
         <div class="hero-temp" id="hero-temp" aria-label="Current temperature">--</div>
         <div class="hero-phrase" id="hero-phrase" aria-live="polite">Loading the attitude...</div>
@@ -217,7 +217,7 @@
 
   <!-- Footer -->
   <footer class="site-footer">
-    <p>Weather data by <a href="https://open-meteo.com/" target="_blank" rel="noopener">Open-Meteo</a> &middot; Icons by <a href="https://bas.dev/work/meteocons" target="_blank" rel="noopener">Bas Milius</a></p>
+    <p>Weather data by <a href="https://open-meteo.com/" target="_blank" rel="noopener noreferrer">Open-Meteo</a> &middot; Icons by <a href="https://bas.dev/work/meteocons" target="_blank" rel="noopener noreferrer">Bas Milius</a></p>
   </footer>
 
   <script type="module" src="js/app.js"></script>

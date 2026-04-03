@@ -27,8 +27,8 @@ export function showState(state, errorMsg = '') {
 export function renderAll(weather, location, phrase) {
   renderHero(weather.current, location, phrase, weather.timezone);
   renderHourly(weather.hourly, weather.timezone);
-  renderDaily(weather.daily);
-  renderDetails(weather.current, weather.daily[0]);
+  renderDaily(weather.daily, weather.timezone);
+  renderDetails(weather.current, weather.daily[0], weather.timezone);
   showState('weather');
 }
 
@@ -77,6 +77,7 @@ export function updatePhrase(phrase) {
 function renderHourly(hourly, timezone) {
   const container = $('hourly-scroll');
   container.innerHTML = '';
+  container.scrollLeft = 0;
 
   hourly.forEach((h, i) => {
     const card = document.createElement('div');
@@ -102,7 +103,7 @@ function renderHourly(hourly, timezone) {
 /**
  * Render daily forecast rows
  */
-function renderDaily(daily) {
+function renderDaily(daily, timezone) {
   const container = $('daily-list');
   container.innerHTML = '';
 
@@ -154,7 +155,7 @@ function renderDaily(daily) {
 /**
  * Render weather details grid
  */
-function renderDetails(current, today) {
+function renderDetails(current, today, timezone) {
   // Humidity
   $('detail-humidity').textContent = `${current.humidity}%`;
   $('detail-humidity-desc').textContent = getHumidityDesc(current.humidity);
@@ -178,8 +179,8 @@ function renderDetails(current, today) {
 
   // Sunrise / Sunset
   if (today && today.sunrise) {
-    $('detail-sunrise').textContent = `↑ ${formatTime(today.sunrise)}`;
-    $('detail-sunset').textContent = `↓ ${formatTime(today.sunset)}`;
+    $('detail-sunrise').textContent = `↑ ${formatTime(today.sunrise, timezone)}`;
+    $('detail-sunset').textContent = `↓ ${formatTime(today.sunset, timezone)}`;
   }
 
   // Precipitation

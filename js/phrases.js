@@ -12,28 +12,30 @@ const MAX_SEEN = 100; // Track last 100 phrases to avoid repeats (increased for 
  * Get the current phrase mode ('clean' or 'explicit')
  */
 export function getPhraseMode() {
-  return localStorage.getItem(MODE_KEY) || 'clean';
+  try { return localStorage.getItem(MODE_KEY) || 'clean'; }
+  catch { return 'clean'; }
 }
 
 /**
  * Set the phrase mode
  */
 export function setPhraseMode(mode) {
-  localStorage.setItem(MODE_KEY, mode);
+  try { localStorage.setItem(MODE_KEY, mode); } catch { /* ignore */ }
 }
 
 /**
  * Check if explicit mode has been confirmed via age disclaimer
  */
 export function isExplicitConfirmed() {
-  return localStorage.getItem(CONFIRMED_KEY) === 'true';
+  try { return localStorage.getItem(CONFIRMED_KEY) === 'true'; }
+  catch { return false; }
 }
 
 /**
  * Mark explicit mode as confirmed
  */
 export function confirmExplicit() {
-  localStorage.setItem(CONFIRMED_KEY, 'true');
+  try { localStorage.setItem(CONFIRMED_KEY, 'true'); } catch { /* ignore */ }
 }
 
 /**
@@ -142,6 +144,11 @@ export function selectPhrase(conditionTag, tempF, mode = 'clean', isDay = true) 
     for (let i = 0; i < weight; i++) {
       weighted.push(phrase);
     }
+  }
+
+  // Guard against empty pool (shouldn't happen, but defensive)
+  if (weighted.length === 0) {
+    return `It's ${Math.round(tempF)}° outside. That's the weather.`;
   }
 
   // True random selection

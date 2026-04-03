@@ -134,12 +134,34 @@ export function formatTemp(temp) {
 }
 
 /**
+ * Get date parts in a specific timezone (Safari-safe, no string re-parsing)
+ */
+function getDatePartsInTZ(date, timezone) {
+  const fmt = new Intl.DateTimeFormat('en-US', {
+    timeZone: timezone,
+    hour: 'numeric',
+    day: 'numeric',
+    month: 'numeric',
+    year: 'numeric',
+    hour12: false,
+  });
+  const parts = {};
+  for (const { type, value } of fmt.formatToParts(date)) {
+    if (type === 'hour') parts.hour = parseInt(value, 10) % 24;
+    if (type === 'day') parts.day = parseInt(value, 10);
+    if (type === 'month') parts.month = parseInt(value, 10);
+    if (type === 'year') parts.year = parseInt(value, 10);
+  }
+  return parts;
+}
+
+/**
  * Get wind direction as compass text
  */
 export function getWindDirection(degrees) {
   const dirs = ['N', 'NNE', 'NE', 'ENE', 'E', 'ESE', 'SE', 'SSE',
                 'S', 'SSW', 'SW', 'WSW', 'W', 'WNW', 'NW', 'NNW'];
-  const index = Math.round(degrees / 22.5) % 16;
+  const index = Math.round((degrees || 0) / 22.5) % 16;
   return dirs[index];
 }
 
@@ -165,11 +187,17 @@ export function getHumidityDesc(humidity) {
 }
 
 /**
- * Format time string from ISO date
+ * Format time string from ISO date, using location timezone
  */
-export function formatTime(isoString) {
+export function formatTime(isoString, timezone) {
   const date = new Date(isoString);
-  return date.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
+  const opts = { hour: 'numeric', minute: '2-digit' };
+  if (timezone) opts.timeZone = timezone;
+  try {
+    return date.toLocaleTimeString('en-US', opts);
+  } catch {
+    return date.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
+  }
 }
 
 /**
@@ -179,11 +207,17 @@ export function formatTime(isoString) {
 export function formatHour(isoString, timezone) {
   const date = new Date(isoString);
   if (timezone) {
-    // Compare using the location's timezone, not the user's browser timezone
-    const nowStr = new Date().toLocaleString('en-US', { timeZone: timezone });
-    const nowInTZ = new Date(nowStr);
-    if (date.getHours() === nowInTZ.getHours() && date.toDateString() === nowInTZ.toDateString()) {
-      return 'Now';
+    try {
+      // Compare using the location's timezone, not the user's browser timezone
+      const nowParts = getDatePartsInTZ(new Date(), timezone);
+      if (date.getHours() === nowParts.hour && date.getDate() === nowParts.day) {
+        return 'Now';
+      }
+    } catch {
+      const now = new Date();
+      if (date.getHours() === now.getHours() && date.toDateString() === now.toDateString()) {
+        return 'Now';
+      }
     }
   } else {
     const now = new Date();
@@ -196,18 +230,24 @@ export function formatHour(isoString, timezone) {
 
 /**
  * Format day label (e.g., "Mon", "Today")
+ * Parses date string directly to avoid timezone offset issues
  */
 export function formatDay(isoString, index) {
   if (index === 0) return 'Today';
-  const date = new Date(isoString);
+  // Open-Meteo daily dates are "YYYY-MM-DD" — parse directly to avoid UTC midnight issue
+  const [year, month, day] = isoString.split('-').map(Number);
+  const date = new Date(year, month - 1, day); // local date, no UTC shift
   return date.toLocaleDateString('en-US', { weekday: 'short' });
 }
 
 /**
  * Format short date (e.g., "Apr 1")
+ * Parses date string directly to avoid timezone offset issues
  */
 export function formatShortDate(isoString) {
-  const date = new Date(isoString);
+  // Handle both "YYYY-MM-DD" and full ISO strings
+  const [year, month, day] = isoString.substring(0, 10).split('-').map(Number);
+  const date = new Date(year, month - 1, day);
   return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
 }
 

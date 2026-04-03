@@ -10,6 +10,8 @@ import { getTempRange } from './utils.js';
 let currentWeather = null;
 let currentLocation = null;
 let timeInterval = null;
+let loadRequestId = 0; // Race condition guard
+let searchRequestId = 0; // Search race condition guard
 
 /**
  * Initialize the app
@@ -50,10 +52,13 @@ async function init() {
  * Load weather for a location
  */
 async function loadWeather(location) {
+  const thisRequest = ++loadRequestId;
   showState('loading');
 
   try {
     const weather = await fetchWeather(location.lat, location.lon);
+    // Bail out if a newer request started while we were waiting
+    if (thisRequest !== loadRequestId) return;
     currentWeather = weather;
     currentLocation = location;
 
@@ -213,37 +218,60 @@ async function handleSearch(query) {
  * Show search result dropdown
  */
 async function showSearchResults(query) {
+  const thisSearch = ++searchRequestId;
   const container = document.querySelector('.search-results');
   try {
     const results = await searchLocation(query);
+    // Bail if a newer search started while we were waiting
+    if (thisSearch !== searchRequestId) return;
     if (results.length === 0) {
       container.hidden = true;
       return;
     }
 
-    container.innerHTML = results.map((r, i) => {
-      const detail = [r.state, r.country].filter(Boolean).join(', ');
-      return `
-        <div class="search-result-item" role="option" data-index="${i}" tabindex="0">
-          <span class="result-name">${r.name}</span>
-          ${detail ? `<span class="result-detail">${detail}</span>` : ''}
-        </div>
-      `;
-    }).join('');
+    // Build results using DOM methods to prevent XSS
+    container.innerHTML = '';
+    results.forEach((r, i) => {
+      const item = document.createElement('div');
+      item.className = 'search-result-item';
+      item.setAttribute('role', 'option');
+      item.setAttribute('tabindex', '0');
 
-    // Bind click events
-    container.querySelectorAll('.search-result-item').forEach(item => {
-      item.addEventListener('click', () => {
-        const idx = parseInt(item.dataset.index);
-        selectLocation(results[idx]);
+      const nameSpan = document.createElement('span');
+      nameSpan.className = 'result-name';
+      nameSpan.textContent = r.name;
+      item.appendChild(nameSpan);
+
+      const detail = [r.state, r.country].filter(Boolean).join(', ');
+      if (detail) {
+        const detailSpan = document.createElement('span');
+        detailSpan.className = 'result-detail';
+        detailSpan.textContent = detail;
+        item.appendChild(detailSpan);
+      }
+
+      // Click and keyboard support
+      const select = () => {
+        selectLocation(results[i]);
         container.hidden = true;
         document.querySelector('.search-input').value = '';
+      };
+      item.addEventListener('click', select);
+      item.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          select();
+        }
       });
+
+      container.appendChild(item);
     });
 
     container.hidden = false;
   } catch {
-    container.hidden = true;
+    if (thisSearch === searchRequestId) {
+      container.hidden = true;
+    }
   }
 }
 
@@ -254,7 +282,10 @@ function selectLocation(location) {
   rememberLocation(location);
   document.querySelector('.search-input').value = '';
   document.querySelector('.search-results').hidden = true;
-  loadWeather(location);
+  loadWeather(location).catch(err => {
+    console.error('Weather load failed:', err);
+    showState('error', 'Could not load the weather. Check your connection and try again.');
+  });
 }
 
 /**

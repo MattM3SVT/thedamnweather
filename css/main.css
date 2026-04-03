@@ -62,9 +62,12 @@
 body[data-conditions="clear"][data-daytime="day"] {
   --bg-gradient: linear-gradient(160deg, #87ceeb 0%, #e0f0ff 50%, #f8f9fa 100%);
 }
-[data-theme="dark"] body[data-conditions="clear"][data-daytime="day"],
-body[data-conditions="clear"][data-daytime="night"] {
+[data-theme="dark"] body[data-conditions="clear"][data-daytime="day"] {
   --bg-gradient: linear-gradient(160deg, #0c1445 0%, #1a1d3a 50%, #0f1117 100%);
+}
+/* Clear night - light mode gets a dusky gradient, dark mode gets deep blue */
+body[data-conditions="clear"][data-daytime="night"] {
+  --bg-gradient: linear-gradient(160deg, #2c3e6b 0%, #4a5a8a 50%, #c8cfe0 100%);
 }
 [data-theme="dark"] body[data-conditions="clear"][data-daytime="night"] {
   --bg-gradient: linear-gradient(160deg, #0c1445 0%, #1a1d3a 50%, #0f1117 100%);
@@ -157,6 +160,7 @@ body {
   color: var(--color-text);
   background: var(--bg-gradient);
   min-height: 100vh;
+  min-height: 100dvh;
   line-height: 1.5;
   transition: background 1.5s ease, color 0.3s ease;
   -webkit-font-smoothing: antialiased;

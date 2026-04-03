@@ -23,7 +23,10 @@ export async function geocodeLocation(query) {
     format: 'json',
   });
 
-  const response = await fetch(`${GEOCODE_URL}?${params}`);
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 10000);
+  const response = await fetch(`${GEOCODE_URL}?${params}`, { signal: controller.signal });
+  clearTimeout(timeoutId);
   if (!response.ok) {
     throw new Error('Failed to geocode location');
   }
@@ -80,7 +83,10 @@ export async function fetchWeather(lat, lon) {
     forecast_days: '10',
   });
 
-  const response = await fetch(`${WEATHER_URL}?${params}`);
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 10000);
+  const response = await fetch(`${WEATHER_URL}?${params}`, { signal: controller.signal });
+  clearTimeout(timeoutId);
   if (!response.ok) {
     throw new Error('Failed to fetch weather data');
   }
@@ -101,13 +107,13 @@ function normalizeWeatherData(raw) {
     feelsLike: raw.current.apparent_temperature,
     humidity: raw.current.relative_humidity_2m,
     isDay: raw.current.is_day === 1,
-    precipitation: raw.current.precipitation,
+    precipitation: raw.current.precipitation ?? 0,
     weatherCode: raw.current.weather_code,
-    cloudCover: raw.current.cloud_cover,
-    pressure: raw.current.pressure_msl,
-    windSpeed: raw.current.wind_speed_10m,
-    windDirection: raw.current.wind_direction_10m,
-    windGusts: raw.current.wind_gusts_10m,
+    cloudCover: raw.current.cloud_cover ?? 0,
+    pressure: raw.current.pressure_msl ?? 0,
+    windSpeed: raw.current.wind_speed_10m ?? 0,
+    windDirection: raw.current.wind_direction_10m ?? 0,
+    windGusts: raw.current.wind_gusts_10m ?? 0,
     conditionTag: getConditionTag(raw.current.weather_code, raw.current.wind_speed_10m),
     conditionLabel: getConditionLabel(raw.current.weather_code),
   };
@@ -116,9 +122,22 @@ function normalizeWeatherData(raw) {
   // Open-Meteo returns times without timezone offset (e.g., "2024-04-02T20:00")
   // which represent the location's local time. We need to compare against
   // the current time in the location's timezone, not the user's browser timezone.
+  // Get current hour in location's timezone using Intl (Safari-safe)
   const tz = raw.timezone || 'UTC';
-  const nowInLocationTZ = new Date().toLocaleString('en-US', { timeZone: tz });
-  const nowLocal = new Date(nowInLocationTZ);
+  let nowLocal;
+  try {
+    const fmt = new Intl.DateTimeFormat('en-US', {
+      timeZone: tz, hour: 'numeric', day: 'numeric', month: 'numeric',
+      year: 'numeric', minute: 'numeric', hour12: false,
+    });
+    const parts = {};
+    for (const { type, value } of fmt.formatToParts(new Date())) {
+      parts[type] = parseInt(value, 10);
+    }
+    nowLocal = new Date(parts.year, parts.month - 1, parts.day, parts.hour % 24, parts.minute);
+  } catch {
+    nowLocal = new Date();
+  }
 
   const hourly = raw.hourly.time.map((time, i) => ({
     time,
