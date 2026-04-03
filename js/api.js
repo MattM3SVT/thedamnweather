@@ -139,6 +139,11 @@ function normalizeWeatherData(raw) {
     nowLocal = new Date();
   }
 
+  // Truncate to start of current hour so the current hour block is included
+  // (e.g. the 9:00 AM entry stays visible when it's 9:09 AM)
+  const nowHourStart = new Date(nowLocal);
+  nowHourStart.setMinutes(0, 0, 0);
+
   const hourly = raw.hourly.time.map((time, i) => ({
     time,
     temp: raw.hourly.temperature_2m[i],
@@ -150,8 +155,20 @@ function normalizeWeatherData(raw) {
     conditionTag: getConditionTag(raw.hourly.weather_code[i], raw.hourly.wind_speed_10m[i]),
   })).filter(h => {
     const hDate = new Date(h.time);
-    return hDate >= nowLocal;
+    return hDate >= nowHourStart;
   }).slice(0, 24);
+
+  // Use the current hour's hourly forecast for hero icon/condition so hero
+  // and hourly cards always agree visually. Keep current's real-time temp,
+  // wind, humidity, etc. since those are more accurate moment-to-moment.
+  const currentHourStr = `${String(nowLocal.getHours()).padStart(2, '0')}:00`;
+  const currentHourIdx = raw.hourly.time.findIndex(t => t.endsWith(`T${currentHourStr}`));
+  if (currentHourIdx !== -1) {
+    current.weatherCode = raw.hourly.weather_code[currentHourIdx];
+    current.conditionTag = getConditionTag(current.weatherCode, current.windSpeed);
+    current.conditionLabel = getConditionLabel(current.weatherCode);
+    current.isDay = raw.hourly.is_day[currentHourIdx] === 1;
+  }
 
   const daily = raw.daily.time.map((time, i) => ({
     time,
