@@ -25,7 +25,7 @@ export function showState(state, errorMsg = '') {
  * Render all weather sections
  */
 export function renderAll(weather, location, phrase) {
-  renderHero(weather.current, location, phrase, weather.timezone);
+  renderHero(weather.current, location, phrase, weather.timezone, weather.daily[0]);
   renderHourly(weather.hourly, weather.timezone);
   renderDaily(weather.daily, weather.timezone);
   renderDetails(weather.current, weather.daily[0], weather.timezone);
@@ -35,7 +35,7 @@ export function renderAll(weather, location, phrase) {
 /**
  * Render the hero section
  */
-function renderHero(current, location, phrase, timezone) {
+function renderHero(current, location, phrase, timezone, today) {
   // Icon
   const iconEl = $('hero-icon');
   iconEl.src = getIconPath(current.conditionTag, current.isDay);
@@ -57,6 +57,7 @@ function renderHero(current, location, phrase, timezone) {
   $('stat-feels-like').textContent = `${formatTemp(current.feelsLike)}°`;
   $('stat-condition').textContent = current.conditionLabel;
   $('stat-wind').textContent = `${Math.round(current.windSpeed)} mph`;
+  $('stat-uv').textContent = today && today.uvMax != null ? `${Math.round(today.uvMax)} ${getUVLevel(today.uvMax)}` : '--';
 }
 
 /**
