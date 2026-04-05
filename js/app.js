@@ -2,7 +2,7 @@ import { fetchWeather } from './api.js';
 import { getBrowserLocation, searchLocation, reverseGeocode, rememberLocation, getRememberedLocation } from './location.js';
 import { selectPhrase, getPhraseMode, setPhraseMode, isExplicitConfirmed, confirmExplicit } from './phrases.js';
 import { showState, renderAll, updatePhrase, updateTime } from './ui.js';
-import { initTheme, toggleTheme, updateWeatherTheme } from './theme.js';
+import { updateWeatherTheme } from './theme.js';
 import { cleanupCache } from './cache.js';
 import { getTempRange } from './utils.js';
 
@@ -17,9 +17,6 @@ let searchRequestId = 0; // Search race condition guard
  * Initialize the app
  */
 async function init() {
-  // Theme
-  initTheme();
-
   // Clean expired cache
   cleanupCache();
 
@@ -141,9 +138,6 @@ function bindEvents() {
       showState('error', err.message || 'Could not get your location.');
     }
   });
-
-  // Theme toggle
-  document.querySelector('.theme-toggle').addEventListener('click', toggleTheme);
 
   // Explicit toggle
   const explicitToggle = document.getElementById('explicit-toggle');

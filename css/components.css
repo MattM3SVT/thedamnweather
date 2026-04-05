@@ -6,15 +6,11 @@
   right: 0;
   z-index: 100;
   height: var(--header-height);
-  background: rgba(248, 249, 250, 0.85);
+  background: rgba(15, 17, 23, 0.85);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   border-bottom: 1px solid var(--color-border);
   transition: background 0.3s ease, border-color 0.3s ease;
-}
-
-[data-theme="dark"] .site-header {
-  background: rgba(15, 17, 23, 0.85);
 }
 
 .header-inner {
@@ -149,27 +145,6 @@
   gap: var(--space-sm);
   flex-shrink: 0;
 }
-
-/* Theme Toggle */
-.theme-toggle {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 36px;
-  height: 36px;
-  border-radius: 50%;
-  color: var(--color-text-secondary);
-  transition: color 0.2s, background 0.2s;
-}
-
-.theme-toggle:hover {
-  color: var(--color-text);
-  background: var(--color-surface-hover);
-}
-
-.icon-moon { display: none; }
-[data-theme="dark"] .icon-sun { display: none; }
-[data-theme="dark"] .icon-moon { display: block; }
 
 /* Explicit Toggle */
 .explicit-toggle-wrapper {
