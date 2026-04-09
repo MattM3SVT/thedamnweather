@@ -695,3 +695,49 @@
 .site-footer a:hover {
   color: var(--color-accent);
 }
+
+.footer-app-store {
+  margin: var(--space-md) 0;
+}
+
+.footer-app-store a {
+  display: inline-block;
+  line-height: 0;
+  opacity: 0.85;
+  transition: opacity 0.2s ease;
+}
+
+.footer-app-store a:hover {
+  opacity: 1;
+}
+
+.app-store-badge {
+  display: block;
+  width: 140px;
+  height: auto;
+}
+
+/* ===== Header App Store Badge ===== */
+.header-app-badge {
+  display: inline-flex;
+  align-items: center;
+  line-height: 0;
+  opacity: 0.85;
+  transition: opacity 0.2s ease;
+}
+
+.header-app-badge:hover {
+  opacity: 1;
+}
+
+.header-app-badge img {
+  display: block;
+  height: 36px;
+  width: auto;
+}
+
+@media (max-width: 768px) {
+  .header-app-badge {
+    display: none;
+  }
+}
