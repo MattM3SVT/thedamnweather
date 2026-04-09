@@ -697,6 +697,8 @@
 }
 
 .footer-app-store {
+  display: flex;
+  justify-content: center;
   margin: var(--space-md) 0;
 }
 
@@ -715,6 +717,7 @@
   display: block;
   width: 140px;
   height: auto;
+  margin: 0 auto;
 }
 
 /* ===== Header App Store Badge ===== */
